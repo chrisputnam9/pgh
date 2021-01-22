@@ -18,17 +18,29 @@ Class Pgh extends Console_Abstract
     ];
 
     protected static $HIDDEN_CONFIG_OPTIONS = [
+        'api_username',
         'api_key',
+        'api_user_agent',
+        'api_user_email',
         'api_cache_lifetime',
     ];
 
     // Constants
-    public const APP_URL = "https://api.github.com";
-    public const API_URL = "https://github.com/";
+    public const APP_URL = "https://github.com";
+    public const API_URL = "https://api.github.com";
 
     // Config Variables
+    protected $__api_username = ["Github Username", "string"];
+    public $api_username = "";
+
     protected $__api_key = ["Github Personal Access Token", "string"];
     public $api_key = "";
+
+    protected $__api_user_agent = ["User agent string to identify API requests. %s placeholder for user e-mail", "string"];
+    public $api_user_agent = "PHP Github CLI (chrisputnam9/pgh) in use by %s";
+
+    protected $__api_user_email = ["User e-mail to fill into user agent string", "string"];
+    public $api_user_email = "";
 
     protected $__api_cache = ["Whether to cache results"];
     public $api_cache = true;
@@ -81,11 +93,6 @@ Class Pgh extends Console_Abstract
             // Get API curl object for endpoint
             $ch = $this->getAPICurl($endpoint, $output_progress);
 
-            // Default to limit -1
-            $this->updateCurlArgs($ch, [
-                '$limit' => -1
-            ]);
-
             // Execute and check results
             list($body, $headers) = $this->runAPICurl($ch, null, [], $output_progress);
 
@@ -96,13 +103,13 @@ Class Pgh extends Console_Abstract
 
         if ($output)
         {
-            if (empty($body->data))
+            if (empty($body))
             {
                 $this->output('No data in response.');
             }
             else
             {
-                $this->outputAPIResults($body->data, $output);
+                $this->outputAPIResults($body, $output);
             }
         }
 
@@ -130,7 +137,7 @@ Class Pgh extends Console_Abstract
         /**
          * Send data to API via specified method
          */
-        protected function _sendData($method='POST', $endpoint, $body_json=null, $output=true, $return_headers=false, $output_progress=false)
+        protected function _sendData($method, $endpoint, $body_json=null, $output=true, $return_headers=false, $output_progress=false)
         {
             // Clean up endpoint
             $endpoint = trim($endpoint, " \t\n\r\0\x0B/");
@@ -155,13 +162,6 @@ Class Pgh extends Console_Abstract
                 $body = $body_json;
             }
 
-            // Wrap in data key if needed
-            if (!isset($body->data))
-            {
-                $data = $body;
-                $body = new StdClass();
-                $body->data = $data;
-            }
             $body_json = json_encode($body);
 
             // Get API curl object for endpoint
@@ -176,13 +176,13 @@ Class Pgh extends Console_Abstract
 
             if ($output)
             {
-                if (empty($body->data))
+                if (empty($body))
                 {
                     $this->output('No data in response.');
                 }
                 else
                 {
-                    $this->outputAPIResults($body->data, $output);
+                    $this->outputAPIResults($body, $output);
                 }
             }
 
@@ -211,11 +211,12 @@ Class Pgh extends Console_Abstract
         curl_setopt_array($ch, [
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_TIMEOUT => 1800,
+            CURLOPT_USERAGENT => sprintf($this->api_user_agent, $this->api_user_email),
             CURLOPT_HTTPHEADER => array(
-                'Accept: application/json',
+                'Accept: application/vnd.github.v3+json',
                 'Content-Type: application/json',
-                'Authorization: Bearer ' . $this->api_key,
             ),
+            CURLOPT_USERPWD => $this->api_username . ":" . $this->api_key
         ]);
 
         return $ch;
@@ -224,35 +225,11 @@ Class Pgh extends Console_Abstract
     /**
      * Get link for a single API result object
      */
-    public function getResultLink($item, $type='')
+    public function getResultLink($item)
     {
-        $app_url = self::APP_URL;
-
-        $item_id = null;
-
-        if (is_object($item))
+        if (isset($item->html_url))
         {
-
-            if (empty($type))
-            {
-                $type = empty($item->resource_type) ? "" : $item->resource_type;
-            }
-
-            $item_id = $item->gid; 
-        }
-        else
-        {
-            $item_id = $item;
-        }
-
-        if ($type=='project')
-        {
-            return $app_url . "/0/" . $item_id;
-        }
-
-        if ($type=='task')
-        {
-            return $item->permalink_url;
+            return $item->html_url;
         }
 
         return "NOT YET IMPLEMENTED";
@@ -432,12 +409,28 @@ Class Pgh extends Console_Abstract
      */
     protected function setupAPI()
     {
+        $api_username = $this->api_username;
+        if (empty($api_username))
+        {
+            $api_username = $this->input("Enter Github Username", null, true);
+            $api_username = trim($api_username);
+            $this->configure('api_username', $api_username, true);
+        }
+
         $api_key = $this->api_key;
         if (empty($api_key))
         {
             $api_key = $this->input("Enter Github Personal Access Token (from https://github.com/settings/tokens)", null, true);
             $api_key = trim($api_key);
             $this->configure('api_key', $api_key, true);
+        }
+
+        $api_user_email = $this->api_user_email;
+        if (empty($api_user_email))
+        {
+            $api_user_email = $this->input("Enter e-mail address to identify API usage", null, true);
+            $api_user_email = trim($api_user_email);
+            $this->configure('api_user_email', $api_user_email, true);
         }
 
         $this->saveConfig();
