@@ -54,6 +54,8 @@ Class Pgh extends Console_Abstract
         "GET data from the Github API.  Refer to https://docs.github.com/en/rest/reference",
         ["Endpoint slug, eg. 'projects'", "string"],
         ["Fields to output in results - comma separated, false to output nothing, * to show all", "string"],
+        ["Whether to return headers", "boolean"],
+        ["Whether to output progress", "boolean"],
     ];
 	public function get($endpoint, $output=true, $return_headers=false, $output_progress=false)
     {
@@ -274,13 +276,9 @@ Class Pgh extends Console_Abstract
             {
                 $name = $result->$name_field;
             }
-            elseif (isset($result->name))
+            elseif (isset($result->title))
             {
-                $name = $result->name;
-            }
-            elseif (isset($result->content))
-            {
-                $name = $result->content;
+                $name = $result->title;
             }
             else
             {

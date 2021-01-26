@@ -7,7 +7,7 @@ See notes to follow below in case you are upgrading from a much earlier version.
 https://raw.githubusercontent.com/chrisputnam9/pgh/master/dist/pgh
 
 ### Latest Version Hash (md5):
-NOT YET PACKAGED
+a2ec0c442d9f4591182b35b433354aaf
 
 ## Install PGH
 1. Make sure you have PHP, or [install it if not](http://php.net/manual/en/install.php)
