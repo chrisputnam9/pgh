@@ -2,9 +2,9 @@
 /**
  * pgh
  */
-Class Pgh extends Console_Abstract
+class Pgh extends Console_Abstract
 {
-    const VERSION = "1.0.0";
+    const VERSION = "1.0.1";
 
     // Name of script and directory to store config
     const SHORTNAME = 'pgh';

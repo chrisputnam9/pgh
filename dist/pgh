@@ -1192,7 +1192,7 @@ if (!class_exists("HJSONParser"))
         public function parse($source, $options = [])
         {
             $this->keepWsc = $options && isset($options['keepWsc']) && $options['keepWsc'];
-            $this->text_array = preg_split("//u", $source, null, PREG_SPLIT_NO_EMPTY);
+            $this->text_array = preg_split("//u", $source, -1, PREG_SPLIT_NO_EMPTY);
             $this->text_length_chars = count($this->text_array);
 
             $data = $this->rootValue();
@@ -4213,6 +4213,7 @@ if (defined('ERRORS') and ERRORS)
     echo "* Displaying all errors & warnings *\n";
     echo "************************************\n\n";
     ini_set('display_errors', 1);
+    ini_set('html_errors', 0);
 }
 else
 {
@@ -5225,9 +5226,28 @@ if (!class_exists("Console_Abstract"))
         * @param (array) $list of items to pick from
         * @param (any) $message (none) to show - prompt
         * @param (int) $default (0) index if no input
+        * @param (bool) $q_to_quit (true) enter q to quit select
+        * @param (array) &$preselects ([]) selection entries - will be shifted off one at a time
+        *  - passed by reference, so it can be used through a chain of selects
         */
-        public function select($list, $message=false, $default=0, $q_to_quit=true)
+        public function select($list, $message=false, $default=0, $q_to_quit=true, &$preselects=[], $livefilter=true)
         {
+			/*
+			if ($livefilter)
+			{
+				$this->clear();
+
+				// todo - figure out how to detect backspace & enter
+				// - maybe focus on how to do it in bash
+				while (true) {
+					$char = $this->input("Enter char", null, false, 'single', 'single_hide');
+					if ($char == 'q') die;
+					var_dump($char);
+					echo "\n";
+				}
+
+			}
+			 */
             $list = array_values($list);
             foreach ($list as $i => $item)
             {
@@ -5249,8 +5269,16 @@ if (!class_exists("Console_Abstract"))
                 {
                     $this->warn("Invalid selection $entry");
                 }
-                $this->output("Enter number or part of selection");
-                $entry = $this->input($message, $default);
+                if ( empty($preselects) )
+                {
+                    $this->output("Enter number or part of selection");
+                    $entry = $this->input($message, $default);
+                }
+                else
+                {
+                    $entry = array_shift($preselects);
+                }
+
                 if ($q_to_quit and (strtolower(trim($entry)) == 'q'))
                 {
                     $this->warn('Selection Canceled');
@@ -5275,7 +5303,7 @@ if (!class_exists("Console_Abstract"))
                     }
                     elseif (!empty($filtered_items))
                     {
-                        return $this->select($filtered_items, $message, 0, $q_to_quit);
+                        return $this->select($filtered_items, $message, 0, $q_to_quit, $preselects);
                     }
                 }
 
@@ -6123,7 +6151,7 @@ if (!class_exists("Console_Abstract"))
         protected $_terminal_height = null;
         public function getTerminalHeight($fresh=false)
         {
-            if (is_null($this->_terminal_height))
+            if ($fresh or empty($this->_terminal_height))
             {
                 exec("tput lines", $output, $return);
 
@@ -6147,7 +6175,7 @@ if (!class_exists("Console_Abstract"))
         protected $_terminal_width = null;
         public function getTerminalWidth($fresh=false)
         {
-            if (is_null($this->_terminal_width))
+            if ($fresh or empty($this->_terminal_width))
             {
                 exec("tput cols", $output, $return);
 
@@ -6434,9 +6462,9 @@ if (!empty($src_includes) and is_array($src_includes))
 /**
  * pgh
  */
-Class Pgh extends Console_Abstract
+class Pgh extends Console_Abstract
 {
-    const VERSION = "1.0.0";
+    const VERSION = "1.0.1";
 
     // Name of script and directory to store config
     const SHORTNAME = 'pgh';
