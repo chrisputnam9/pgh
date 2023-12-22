@@ -4,7 +4,7 @@
  */
 class Pgh extends Console_Abstract
 {
-    const VERSION = "1.0.1";
+    const VERSION = "1.0.2";
 
     // Name of script and directory to store config
     const SHORTNAME = 'pgh';
@@ -113,6 +113,11 @@ class Pgh extends Console_Abstract
             {
                 $this->outputAPIResults($body, $output);
             }
+
+			if ($return_headers)
+			{
+				$this->output($headers);
+			}
         }
 
         if ($return_headers)
