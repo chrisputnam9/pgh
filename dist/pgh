@@ -4686,7 +4686,7 @@ if (! class_exists("Console_Abstract")) {
          *
          * @var string
          */
-        protected $editor_exec = '/usr/bin/vim -c "startinsert" "%s" > `tty`';
+        protected $editor_exec = '/usr/bin/vim -c "startinsert" %s > `tty`';
 
         /**
          * Help info for $editor_modify_exec
@@ -4706,7 +4706,7 @@ if (! class_exists("Console_Abstract")) {
          *
          * @var string
          */
-        protected $editor_modify_exec = '/usr/bin/vim "%s" > `tty`';
+        protected $editor_modify_exec = '/usr/bin/vim %s > `tty`';
 
         /**
          * Help info for $install_path
@@ -4815,7 +4815,7 @@ if (! class_exists("Console_Abstract")) {
          * @var string
          * @api
          */
-        public $timezone = "US/Eastern";
+        public $timezone = "America/New_York";
 
         /**
          * Help info for $update_auto
@@ -5042,7 +5042,7 @@ if (! class_exists("Console_Abstract")) {
          *
          * @var integer
          */
-        protected $minimum_php_version = "7.4";
+        protected $minimum_php_version = "8.0";
 
         /**
          * The minimum PHP major version supported by the "livefilter" feature
@@ -7832,7 +7832,7 @@ if (! empty($src_includes) and is_array($src_includes)) {
  */
 class Pgh extends Console_Abstract
 {
-    const VERSION = "1.0.2";
+    const VERSION = "1.1.2";
 
     // Name of script and directory to store config
     const SHORTNAME = 'pgh';
