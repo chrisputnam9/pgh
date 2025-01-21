@@ -3,11 +3,11 @@
 ## Latest Version
 See notes to follow below in case you are upgrading from a much earlier version.
 
-### Download Latest Version (1.1.2):
+### Download Latest Version (1.2.0):
 https://raw.githubusercontent.com/chrisputnam9/pgh/master/dist/pgh
 
 ### Latest Version Hash (md5):
-5fb80a41f72e17cfcc7c593a90417556
+89ccf85667ed5234116fbd0acb17a6e6
 
 ## Install PGH
 1. Make sure you have PHP, or [install it if not](http://php.net/manual/en/install.php)
